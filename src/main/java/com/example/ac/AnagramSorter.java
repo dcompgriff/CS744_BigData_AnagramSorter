@@ -123,8 +123,8 @@ public class AnagramSorter {
 		job1.setMapperClass(AnagramMapper.class);
 		//job1.setCombinerClass(AnagramReducer.class);
 		job1.setReducerClass(AnagramReducer.class);
-	    job1.setOutputKeyClass(Text.class);
-	    job1.setOutputValueClass(NullWritable.class);
+	    job1.setOutputKeyClass(NullWritable.class);
+	    job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job1, new Path(args[1]));

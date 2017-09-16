@@ -9,7 +9,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 /**
  * Reducer that concatenates all strings in a file to
  * */
-public class AnagramReducer extends Reducer<Text,Text,Text,NullWritable> {
+public class AnagramReducer extends Reducer<Text,Text,NullWritable,Text> {
 	private Text result;
 	
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
@@ -19,6 +19,6 @@ public class AnagramReducer extends Reducer<Text,Text,Text,NullWritable> {
 			groupedAnagrams += val.toString() + ", ";
 		}
 		result = new Text(groupedAnagrams);
-		context.write(result, NullWritable.get());
+		context.write(NullWritable.get(), result);
 	}
 }
