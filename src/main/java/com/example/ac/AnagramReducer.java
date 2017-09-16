@@ -2,14 +2,14 @@ package com.example.ac;
 import java.io.IOException;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.Reducer.Context;
 
 /**
  * Reducer that concatenates all strings in a file to
  * */
-public class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
+public class AnagramReducer extends Reducer<IntWritable,Text,NullWritable,Text> {
 	private Text result;
 	
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
@@ -19,6 +19,6 @@ public class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
 			groupedAnagrams += val.toString() + " ";
 		}
 		result = new Text(groupedAnagrams);
-		context.write(new Text(""), result);
+		context.write(NullWritable.get(), result);
 	}
 }
