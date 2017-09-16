@@ -6,12 +6,15 @@ import java.util.UUID;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import com.example.ac.AnagramMapper;
+import com.example.ac.AnagramReducer;
 
 public class AnagramSorter {
 
@@ -118,9 +121,9 @@ public class AnagramSorter {
 		Job job1 = Job.getInstance(conf, "AnagramGeneration");
 		job1.setJarByClass(AnagramSorter.class);
 		job1.setMapperClass(AnagramMapper.class);
-		job1.setCombinerClass(AnagramReducer.class);
+		//job1.setCombinerClass(AnagramReducer.class);
 		job1.setReducerClass(AnagramReducer.class);
-	    job1.setOutputKeyClass(Text.class);
+	    job1.setOutputKeyClass(NullWritable.class);
 	    job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));

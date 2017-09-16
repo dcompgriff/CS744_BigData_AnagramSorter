@@ -22,6 +22,7 @@ public class AnagramMapper extends Mapper<Object, Text, Text, Text>{
 		sortedChars = value.toString().toCharArray();
 		Arrays.sort(sortedChars);
 		sortedWord = new String(sortedChars);
+		sortedWord = sortedWord.trim();
 		context.write(new Text(sortedWord), value);
 	}
 }
