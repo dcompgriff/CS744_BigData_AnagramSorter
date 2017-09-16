@@ -14,6 +14,7 @@ public class AnagramMapper extends Mapper<Object, Text, Text, Text>{
 	private IntWritable numberOfCharacters;
 	private Text word = new Text();
 
+	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
 		// Convert each word to its character sorted form
 		// and output (char sorted word, word)
