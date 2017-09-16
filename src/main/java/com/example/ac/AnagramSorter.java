@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -16,38 +17,38 @@ public class AnagramSorter {
 	/**
 	 * Mapper that maps words to (length, word)//(length:sorted(word), word) tuples.
 	 * */
-	public static class AnagramMapper extends Mapper<Object, Text, Text, Text>{
-		private IntWritable numberOfCharacters;
-		private Text word = new Text();
-
-		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-			// Convert each word to its character sorted form
-			// and output (char sorted word, word)
-			String sortedWord = "";
-			char[] sortedChars;
-			sortedChars = value.toString().toCharArray();
-			Arrays.sort(sortedChars);
-			sortedWord = new String(sortedChars);
-			context.write(new Text(sortedWord), value);
-		}
-	}
+//	public static class AnagramMapper extends Mapper<Object, Text, Text, Text>{
+//		private IntWritable numberOfCharacters;
+//		private Text word = new Text();
+//
+//		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+//			// Convert each word to its character sorted form
+//			// and output (char sorted word, word)
+//			String sortedWord = "";
+//			char[] sortedChars;
+//			sortedChars = value.toString().toCharArray();
+//			Arrays.sort(sortedChars);
+//			sortedWord = new String(sortedChars);
+//			context.write(new Text(sortedWord), value);
+//		}
+//	}
 
 	/**
 	 * Reducer that concatenates all strings in a file to
 	 * */
-	public static class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
-		private Text result;
-		
-		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-			// Combine the anagrams into a single group.
-			String groupedAnagrams = "";
-			for (Text val : values){
-				groupedAnagrams += val.toString() + " ";
-			}
-			result = new Text(groupedAnagrams);
-			context.write(key, result);
-		}
-	}
+//	public class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
+//		private Text result;
+//		
+//		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+//			// Combine the anagrams into a single group.
+//			String groupedAnagrams = "";
+//			for (Text val : values){
+//				groupedAnagrams += val.toString() + " ";
+//			}
+//			result = new Text(groupedAnagrams);
+//			context.write(key, result);
+//		}
+//	}
 	
 	/**
 	 * Main function that sets up the anagram sorting run (with 1 map and reduce stage).
@@ -123,6 +124,9 @@ public class AnagramSorter {
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+		UUID newTempFile = UUID.randomUUID();
+		//newTempFile.toString();
+		//FileOutputFormat.setOutputPath(job1, new Path("f4d91540-04ea-4b58-a954-cd6602368dc9"));
 		returnCode = job1.waitForCompletion(true) ? 0 : 1;
 		//if(returnCode == 1){
 			System.exit(returnCode);
