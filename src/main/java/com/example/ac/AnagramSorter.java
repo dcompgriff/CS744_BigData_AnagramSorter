@@ -1,5 +1,3 @@
-package com.example.ac;
-
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -124,7 +122,7 @@ public class AnagramSorter {
 	    job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job1, new Path("temp"));
+		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
 		returnCode = job1.waitForCompletion(true) ? 0 : 1;
 		//if(returnCode == 1){
 			System.exit(returnCode);
