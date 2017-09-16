@@ -120,11 +120,11 @@ public class AnagramSorter {
 		int returnCode = 0;
 		Job job1 = Job.getInstance(conf, "AnagramGeneration");
 		job1.setJarByClass(AnagramSorter.class);
-		job1.setMapperClass(AnagramMapper.class);
+		job1.setMapperClass(com.example.ac.AnagramMapper.class);
 		//job1.setCombinerClass(AnagramReducer.class);
-		job1.setReducerClass(AnagramReducer.class);
-	    job1.setOutputKeyClass(NullWritable.class);
-	    job1.setOutputValueClass(Text.class);
+		job1.setReducerClass(com.example.ac.AnagramReducer.class);
+		job1.setOutputKeyClass(Text.class);
+		job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
