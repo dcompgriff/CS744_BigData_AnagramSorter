@@ -19,6 +19,6 @@ public class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
 			groupedAnagrams += val.toString() + " ";
 		}
 		result = new Text(groupedAnagrams);
-		context.write(key, result);
+		context.write(new Text(""), result);
 	}
 }
