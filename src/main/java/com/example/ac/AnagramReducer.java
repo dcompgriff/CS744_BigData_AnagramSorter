@@ -11,17 +11,6 @@ import org.apache.hadoop.mapreduce.Reducer;
  * */
 public class AnagramReducer extends Reducer<Text,Text,Text,Text> {
 	private Text result;
-//	
-//	@Override
-//	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-//		// Combine the anagrams into a single group.
-//		String groupedAnagrams = "";
-//		for (Text val : values){
-//			groupedAnagrams += val.toString() + ", ";
-//		}
-//		result = new Text(groupedAnagrams);
-//		context.write(NullWritable.get(), result);
-//	}
 
 	@Override
 	protected void reduce(Text key, Iterable<Text> values, Reducer<Text, Text, Text, Text>.Context context)
@@ -29,7 +18,7 @@ public class AnagramReducer extends Reducer<Text,Text,Text,Text> {
 		// Combine the anagrams into a single group.
 		String groupedAnagrams = "";
 		for (Text val : values){
-			groupedAnagrams += val.toString() + ", ";
+			groupedAnagrams += val.toString() + " ";
 		}
 		result = new Text(groupedAnagrams);
 		context.write(new Text(""), result);
