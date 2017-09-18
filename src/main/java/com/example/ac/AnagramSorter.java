@@ -124,8 +124,10 @@ public class AnagramSorter {
 		job1.setMapperClass(com.example.ac.AnagramMapper.class);
 		//job1.setCombinerClass(AnagramReducer.class);
 		job1.setReducerClass(com.example.ac.AnagramReducer.class);
-		job1.setOutputKeyClass(Text.class);
-		job1.setOutputValueClass(Text.class);
+		job1.setMapOutputKeyClass(Text.class);
+		job1.setMapOutputValueClass(Text.class);
+//		job1.setOutputKeyClass(Text.class);
+//		job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job1, new Path("temp"));
@@ -138,13 +140,15 @@ public class AnagramSorter {
 		}
 
 		// Run second stage for sorting anagram groups.
+		conf = new Configuration();
 		Job job2 = Job.getInstance(conf, "AnagramSorting");
 		job2.setJarByClass(AnagramSorter.class);
 		job2.setMapperClass(com.example.ac.SorterMapper.class);
 		//job2.setCombinerClass(com.example.ac.SorterReducer.class);
 		job2.setReducerClass(com.example.ac.SorterReducer.class);
-		job2.setOutputKeyClass(Text.class);
-		job2.setOutputValueClass(Text.class);
+		job2.setMapOutputKeyClass(IntWritable.class);
+		job2.setMapOutputValueClass(ArrayWritable.class);
+		//job2.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job2, new Path("temp"));
 		FileOutputFormat.setOutputPath(job2, new Path(args[1]));

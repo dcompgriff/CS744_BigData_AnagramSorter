@@ -30,5 +30,4 @@ public class SorterReducer extends Reducer<IntWritable,ArrayWritable,Text,Text> 
 		}
 	}
 	
-	
 }
