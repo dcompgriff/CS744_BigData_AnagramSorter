@@ -20,6 +20,24 @@ import com.example.ac.AnagramReducer;
 public class AnagramSorter {
 
 	/**
+	 * This class is necessary to ensure that the data in the ArrayWritable is correctly converted to strings.
+	 * */
+    public static class TextArrayWritable extends ArrayWritable {
+        public TextArrayWritable() {
+            super(Text.class);
+        }
+
+        public TextArrayWritable(String[] strings) {
+            super(Text.class);
+            Text[] texts = new Text[strings.length];
+            for(int i = 0; i < strings.length; i++) {
+                texts[i] = new Text(strings[i]);
+            }
+            set(texts);
+        }
+    }
+	
+	/**
 	 * Mapper that maps words to (length, word)//(length:sorted(word), word) tuples.
 	 * */
 //	public static class AnagramMapper extends Mapper<Object, Text, Text, Text>{
@@ -147,7 +165,7 @@ public class AnagramSorter {
 		//job2.setCombinerClass(com.example.ac.SorterReducer.class);
 		job2.setReducerClass(com.example.ac.SorterReducer.class);
 		job2.setMapOutputKeyClass(IntWritable.class);
-		job2.setMapOutputValueClass(ArrayWritable.class);
+		job2.setMapOutputValueClass(Text.class);
 		//job2.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job2, new Path("temp"));

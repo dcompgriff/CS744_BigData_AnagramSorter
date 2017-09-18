@@ -12,9 +12,8 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 /**
  * Mapper that maps words to (length, word)//(length:sorted(word), word) tuples.
  * */
-public class SorterMapper extends Mapper<Object, Text, IntWritable, ArrayWritable>{
+public class SorterMapper extends Mapper<Object, Text, IntWritable, Text>{
 	private IntWritable numberOfCharacters;
-	private ArrayWritable anagramList;
 
 	@Override
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -24,9 +23,8 @@ public class SorterMapper extends Mapper<Object, Text, IntWritable, ArrayWritabl
 		for(int i=0; i<stringList.length; i++){
 			stringList[i] = stringList[i].trim();
 		}
-		anagramList = new ArrayWritable(stringList);
 		
 		// Write the (integer, array) tuple to the context.
-		context.write(new IntWritable(stringList.length), anagramList);
+		context.write(new IntWritable(stringList.length), value);
 	}
 }
