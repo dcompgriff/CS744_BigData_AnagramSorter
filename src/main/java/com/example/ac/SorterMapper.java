@@ -25,6 +25,6 @@ public class SorterMapper extends Mapper<Object, Text, IntWritable, Text>{
 		}
 		
 		// Write the (integer, array) tuple to the context.
-		context.write(new IntWritable(stringList.length), value);
+		context.write(new IntWritable(-stringList.length), value);
 	}
 }
