@@ -1,4 +1,3 @@
-package com.example.ac;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
@@ -12,6 +11,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import com.example.ac.AnagramMapper;
@@ -20,138 +20,102 @@ import com.example.ac.AnagramReducer;
 public class AnagramSorter {
 
 	/**
-	 * This class is necessary to ensure that the data in the ArrayWritable is correctly converted to strings.
+	 * Mapper that maps words to (length, word)//(length:sorted(word), word) tuples.
 	 * */
-    public static class TextArrayWritable extends ArrayWritable {
-        public TextArrayWritable() {
-            super(Text.class);
-        }
+	public class AnagramMapper extends Mapper<Object, Text, Text, Text>{
+		private IntWritable numberOfCharacters;
+		private Text word = new Text();
 
-        public TextArrayWritable(String[] strings) {
-            super(Text.class);
-            Text[] texts = new Text[strings.length];
-            for(int i = 0; i < strings.length; i++) {
-                texts[i] = new Text(strings[i]);
-            }
-            set(texts);
-        }
-    }
+		@Override
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			// Convert each word to its character sorted form
+			// and output (char sorted word, word)
+			String sortedWord = "";
+			char[] sortedChars;
+			sortedChars = value.toString().toCharArray();
+			Arrays.sort(sortedChars);
+			sortedWord = new String(sortedChars);
+			sortedWord = sortedWord.trim();
+			context.write(new Text(sortedWord), value);
+		}
+	}
+	
+	/**
+	 * Reducer that concatenates all strings in a file to
+	 * */
+	public class AnagramReducer extends Reducer<Text,Text,Text,Text> {
+		private Text result;
+
+		@Override
+		protected void reduce(Text key, Iterable<Text> values, Reducer<Text, Text, Text, Text>.Context context)
+				throws IOException, InterruptedException {
+			// Combine the anagrams into a single group.
+			String groupedAnagrams = "";
+			for (Text val : values){
+				groupedAnagrams += val.toString() + " ";
+			}
+			result = new Text(groupedAnagrams);
+			context.write(new Text(""), result);
+		}
+		
+		
+	}
 	
 	/**
 	 * Mapper that maps words to (length, word)//(length:sorted(word), word) tuples.
 	 * */
-//	public static class AnagramMapper extends Mapper<Object, Text, Text, Text>{
-//		private IntWritable numberOfCharacters;
-//		private Text word = new Text();
-//
-//		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-//			// Convert each word to its character sorted form
-//			// and output (char sorted word, word)
-//			String sortedWord = "";
-//			char[] sortedChars;
-//			sortedChars = value.toString().toCharArray();
-//			Arrays.sort(sortedChars);
-//			sortedWord = new String(sortedChars);
-//			context.write(new Text(sortedWord), value);
-//		}
-//	}
+	public class SorterMapper extends Mapper<Object, Text, IntWritable, Text>{
+		private IntWritable numberOfCharacters;
 
+		@Override
+		public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+			// Break each line into its list of anagrams, and create an Integer, Array
+			//LinkedList<String> anagramList = new LinkedList<String>();
+			String[] stringList = value.toString().split(" ");
+			for(int i=0; i<stringList.length; i++){
+				stringList[i] = stringList[i].trim();
+			}
+			
+			// Write the (integer, array) tuple to the context.
+			context.write(new IntWritable(-stringList.length), value);
+		}
+	}
+	
 	/**
 	 * Reducer that concatenates all strings in a file to
 	 * */
-//	public class AnagramReducer extends Reducer<IntWritable,Text,Text,Text> {
-//		private Text result;
-//		
-//		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-//			// Combine the anagrams into a single group.
-//			String groupedAnagrams = "";
-//			for (Text val : values){
-//				groupedAnagrams += val.toString() + " ";
-//			}
-//			result = new Text(groupedAnagrams);
-//			context.write(key, result);
-//		}
-//	}
+	public class SorterReducer extends Reducer<IntWritable, Text,NullWritable,Text> {
+		private Text result;
+		
+		@Override
+		protected void reduce(IntWritable key, Iterable<Text> values, Reducer<IntWritable, Text, NullWritable, Text>.Context context)
+				throws IOException, InterruptedException {
+			// Combine the anagrams into a single group.
+			for (Text val : values){
+			    context.write(NullWritable.get(), val);
+			}
+		}
+		
+	}
 	
 	/**
 	 * Main function that sets up the anagram sorting run (with 1 map and reduce stage).
 	 * */
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-//		Configuration conf1 = new Configuration();
-//		Configuration conf2 = new Configuration();
-//		Job job = Job.getInstance(conf, "word count");
-//		job.setJarByClass(WordCount.class);
-//		job.setMapperClass(AnagramMapper.class);
-//		job.setCombinerClass(IntSumReducer.class);
-//		job.setReducerClass(IntSumReducer.class);
-//		job.setOutputKeyClass(Text.class);
-//		job.setOutputValueClass(IntWritable.class);
-//		FileInputFormat.addInputPath(job, new Path(args[0]));
-//		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-//		System.exit(job.waitForCompletion(true) ? 0 : 1);
-		
-//		// Set up the first configuration object.
-//		Job job = Job.getInstance(conf, "blank");
-//		job.setJarByClass(AnagramSorter.class);
-//		job.setMapperClass(AnagramMapper.class);
-//		job.setCombinerClass(AnagramReducer.class);
-//		job.setReducerClass(AnagramReducer.class);
-//		job.setOutputKeyClass(Text.class);
-//		job.setOutputValueClass(IntWritable.class);
-//		FileInputFormat.addInputPath(job, new Path(args[0]));
-//		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-//		// Create anagram Map/Reduce job.
-//		ControlledJob anagramFindingJob = new ControlledJob(job.getConfiguration());
-//				
-//		// Set up the first configuration object.
-//		conf = new Configuration();
-//		job = Job.getInstance(conf, "blank");
-//		job.setJarByClass(AnagramSorter.class);
-//		job.setMapperClass(AnagramMapper.class);
-//		job.setCombinerClass(AnagramReducer.class);
-//		job.setReducerClass(AnagramReducer.class);
-//		job.setOutputKeyClass(Text.class);
-//		job.setOutputValueClass(IntWritable.class);
-//		FileInputFormat.addInputPath(job, new Path(args[0]));
-//		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-//		// Create anagram Map/Reduce job.
-//		ControlledJob anagramGroupSortingJob = new ControlledJob(job.getConfiguration());
-//			
-//		// Create controlled Map/Reduce job dependence.
-//		anagramGroupSortingJob.addDependingJob(anagramFindingJob);
-		
-//		// Create the job control object.
-//		JobControl jControl = new JobControl("anagram job control");
-//		jControl.addJob(anagramFindingJob);
-////		jControl.addJob(anagramGroupSortingJob);
-//		// Create a separate thread to run the jcontrol object.
-//		Thread runJControl = new Thread(jControl);
-//		runJControl.start();
-//		int returnCode = 0;
-//		while(!jControl.allFinished()){
-//			returnCode = jControl.getFailedJobList().size() == 0 ? 0 : 1;
-//			Thread.sleep(100);
-//		}
-//		System.exit(returnCode);
-		
 		// Run first stage for creating anagrams.
 		int returnCode = 0;
 		Job job1 = Job.getInstance(conf, "AnagramGeneration");
 		job1.setJarByClass(AnagramSorter.class);
-		job1.setMapperClass(com.example.ac.AnagramMapper.class);
-		//job1.setCombinerClass(AnagramReducer.class);
-		job1.setReducerClass(com.example.ac.AnagramReducer.class);
+		job1.setMapperClass(AnagramSorter.AnagramMapper.class);
+		job1.setReducerClass(AnagramSorter.AnagramReducer.class);
 		job1.setMapOutputKeyClass(Text.class);
 		job1.setMapOutputValueClass(Text.class);
-//		job1.setOutputKeyClass(Text.class);
-//		job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job1, new Path("temp"));
 		UUID newTempFile = UUID.randomUUID();
-		//newTempFile.toString();
-		//FileOutputFormat.setOutputPath(job1, new Path("f4d91540-04ea-4b58-a954-cd6602368dc9"));
+		String tempUUIDFilePath = newTempFile.toString();
+		FileOutputFormat.setOutputPath(job1, new Path(tempUUIDFilePath));
 		returnCode = job1.waitForCompletion(true) ? 0 : 1;
 		if(returnCode == 1){
 			System.exit(returnCode);
@@ -161,14 +125,12 @@ public class AnagramSorter {
 		conf = new Configuration();
 		Job job2 = Job.getInstance(conf, "AnagramSorting");
 		job2.setJarByClass(AnagramSorter.class);
-		job2.setMapperClass(com.example.ac.SorterMapper.class);
-		//job2.setCombinerClass(com.example.ac.SorterReducer.class);
-		job2.setReducerClass(com.example.ac.SorterReducer.class);
+		job2.setMapperClass(AnagramSorter.SorterMapper.class);
+		job2.setReducerClass(AnagramSorter.SorterReducer.class);
 		job2.setMapOutputKeyClass(IntWritable.class);
 		job2.setMapOutputValueClass(Text.class);
-		//job2.setOutputValueClass(Text.class);
 
-		FileInputFormat.addInputPath(job2, new Path("temp"));
+		FileInputFormat.addInputPath(job2, new Path(tempUUIDFilePath));
 		FileOutputFormat.setOutputPath(job2, new Path(args[1]));
 
 		returnCode = job2.waitForCompletion(true) ? 0 : 1;
