@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -127,28 +128,28 @@ public class AnagramSorter {
 		job1.setOutputValueClass(Text.class);
 
 		FileInputFormat.addInputPath(job1, new Path(args[0]));
-		FileOutputFormat.setOutputPath(job1, new Path(args[1]));
+		FileOutputFormat.setOutputPath(job1, new Path("temp"));
 		UUID newTempFile = UUID.randomUUID();
 		//newTempFile.toString();
 		//FileOutputFormat.setOutputPath(job1, new Path("f4d91540-04ea-4b58-a954-cd6602368dc9"));
 		returnCode = job1.waitForCompletion(true) ? 0 : 1;
-		//if(returnCode == 1){
+		if(returnCode == 1){
 			System.exit(returnCode);
-		//}
+		}
 
 		// Run second stage for sorting anagram groups.
-//		Job job2 = Job.getInstance(conf, "AnagramGeneration");
-//		job2.setJarByClass(AnagramSorter.class);
-//		job2.setMapperClass(AnagramMapper.class);
-//		job2.setCombinerClass(AnagramReducer.class);
-//		job2.setReducerClass(AnagramReducer.class);
-//		job2.setOutputKeyClass(Text.class);
-//		job2.setOutputValueClass(Text.class);
-//
-//		FileInputFormat.addInputPath(job2, new Path("temp"));
-//		FileOutputFormat.setOutputPath(job2, new Path(args[1]));
-//
-//		returnCode = job2.waitForCompletion(true) ? 0 : 1;
-//		System.exit(returnCode);
+		Job job2 = Job.getInstance(conf, "AnagramSorting");
+		job2.setJarByClass(AnagramSorter.class);
+		job2.setMapperClass(com.example.ac.SorterMapper.class);
+		//job2.setCombinerClass(com.example.ac.SorterReducer.class);
+		job2.setReducerClass(com.example.ac.SorterReducer.class);
+		job2.setOutputKeyClass(Text.class);
+		job2.setOutputValueClass(Text.class);
+
+		FileInputFormat.addInputPath(job2, new Path("temp"));
+		FileOutputFormat.setOutputPath(job2, new Path(args[1]));
+
+		returnCode = job2.waitForCompletion(true) ? 0 : 1;
+		System.exit(returnCode);
 	}	
 }
